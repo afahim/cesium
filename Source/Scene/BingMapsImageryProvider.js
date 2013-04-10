@@ -146,7 +146,7 @@ define([
             //Storing received tiles metadata into browser storage in case the browser supports browser storage.
             if (offlineSupported)
             {
-                alert("Offline Data Stored: " + metadataUrl);
+                alert("Metadata Stored: " + metadataUrl);
                 localStorage[metadataUrl] = JSON.stringify(data);
             }
             processMetadata(data);
@@ -165,7 +165,7 @@ define([
                 //change null to undefined
                 if (typeof data != null)
                 {
-                    alert("Offline Data Available");
+                    alert("Metadata Available Offline");
                     processMetadata(data);
                     return;  
                 }

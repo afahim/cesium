@@ -65,12 +65,10 @@ define([
         var image = new Image();
 
         image.onload = function(e) {
-            alert("Accepting Image: " + image);
             deferred.resolve(image);
         };
 
         image.onerror = function(e) {
-            alert("Rejecting Image: " + image);
             deferred.reject(e);
         };
 
