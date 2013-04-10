@@ -111,7 +111,16 @@ define([
         var that = this;
         var metadataError;
 
-        function metadataSuccess(data) {
+        function offlineSupported() {
+            try {
+                return 'localStorage' in window && window['localStorage'] !== null;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function processMetadata(data)
+        {
             var resource = data.resourceSets[0].resources[0];
 
             that._tileWidth = resource.imageWidth;
@@ -133,9 +142,39 @@ define([
             TileProviderError.handleSuccess(metadataError);
         }
 
+        function metadataSuccess(data) {
+            //Storing received tiles metadata into browser storage in case the browser supports browser storage.
+            if (offlineSupported)
+            {
+                alert("Offline Data Stored: " + metadataUrl);
+                localStorage[metadataUrl] = JSON.stringify(data);
+            }
+            processMetadata(data);
+        }
+
+        /**
+         * Handles the case when the url request to a BingMaps server fails (possibly due to an offline connection)
+         * Instead, attempts to load tiles from local Web Storage. In case offline storage cannot provide the tiles 
+         * either, raises a TileProviderError.
+         * @type {Number}
+         */
         function metadataFailure(e) {
+            if (offlineSupported)
+            {
+                var data = JSON.parse(localStorage[metadataUrl]);
+                //change null to undefined
+                if (typeof data != null)
+                {
+                    alert("Offline Data Available");
+                    processMetadata(data);
+                    return;  
+                }
+                
+            }
+
             var message = 'An error occurred while accessing ' + metadataUrl + '.';
             metadataError = TileProviderError.handleError(metadataError, that, that._errorEvent, message, undefined, undefined, undefined, requestMetadata);
+            
         }
 
         function requestMetadata() {
